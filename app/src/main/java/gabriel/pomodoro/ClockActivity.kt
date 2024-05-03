@@ -1,11 +1,10 @@
 package gabriel.pomodoro
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -20,97 +19,26 @@ class ClockActivity : AppCompatActivity() {
     private var timeRemaining: Long = 0
     private lateinit var countDownTimer: CountDownTimer
     private var isTimerRunning: Boolean = false
-    private lateinit var resumeButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         val selectedTime = intent.getIntExtra("selected_time", 0)
-        timeRemaining = selectedTime * 60000L // Converter minutos para milissegundos
+        timeRemaining = selectedTime * 60000L
 
-        countDownTimer = object : CountDownTimer(timeRemaining, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                timeRemaining = millisUntilFinished
-                updateTimerUI()
-            }
+        setupCountDownTimer()
 
-            override fun onFinish() {
-                // O cronômetro chegou ao fim
-                isTimerRunning = false
-                showResumeButton()
-            }
+        binding.btnFinish.setOnClickListener {
+            showFinishConfirmationDialog()
         }
-
-        countDownTimer.start()
-        isTimerRunning = true
 
         binding.btnStop.setOnClickListener {
             showStopConfirmationDialog()
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putLong("time_remaining", timeRemaining)
-        outState.putBoolean("is_timer_running", isTimerRunning)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        timeRemaining = savedInstanceState.getLong("time_remaining")
-        isTimerRunning = savedInstanceState.getBoolean("is_timer_running")
-        if (!isTimerRunning) {
-            showResumeButton()
-        }
-    }
-
-    private fun updateTimerUI() {
-        val minutes = (timeRemaining / 60000).toInt()
-        val seconds = ((timeRemaining % 60000) / 1000).toInt()
-
-        val timerText = String.format("%02d:%02d", minutes, seconds)
-        binding.timerTextView.text = timerText
-    }
-
-    private fun showStopConfirmationDialog() {
-        val alertDialogBuilder = AlertDialog.Builder(this)
-        alertDialogBuilder.setTitle("Parar Cronômetro")
-        alertDialogBuilder.setMessage("Tem certeza que deseja parar o cronômetro?")
-        alertDialogBuilder.setPositiveButton("Sim") { dialogInterface: DialogInterface, _: Int ->
-            stopTimer()
-            dialogInterface.dismiss()
-        }
-        alertDialogBuilder.setNegativeButton("Não") { dialogInterface: DialogInterface, _: Int ->
-            dialogInterface.dismiss()
-        }
-        val alertDialog = alertDialogBuilder.create()
-        alertDialog.show()
-    }
-
-    private fun stopTimer() {
-        countDownTimer.cancel()
-        isTimerRunning = false
-        showResumeButton()
-        Toast.makeText(this, "Cronômetro parado", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun showResumeButton() {
-        if (isTimerRunning) return // Já exibido o botão de Resume
-
-        resumeButton = Button(this)
-        resumeButton.text = "Resume"
-        val params = binding.btnStop.layoutParams as ViewGroup.MarginLayoutParams
-        params.topMargin = resources.getDimensionPixelSize(R.dimen.margin_medium)
-        binding.root.addView(resumeButton, params)
-
-        resumeButton.setOnClickListener {
-            resumeTimer()
-            binding.root.removeView(resumeButton)
-        }
-    }
-
-    private fun resumeTimer() {
+    private fun setupCountDownTimer() {
         countDownTimer = object : CountDownTimer(timeRemaining, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 timeRemaining = millisUntilFinished
@@ -118,12 +46,72 @@ class ClockActivity : AppCompatActivity() {
             }
 
             override fun onFinish() {
-                // O cronômetro chegou ao fim
                 isTimerRunning = false
                 showResumeButton()
             }
         }
         countDownTimer.start()
         isTimerRunning = true
+    }
+
+    private fun updateTimerUI() {
+        val minutes = (timeRemaining / 60000).toInt()
+        val seconds = ((timeRemaining % 60000) / 1000).toInt()
+        val timerText = String.format("%02d:%02d", minutes, seconds)
+        binding.timerTextView.text = timerText
+    }
+
+    private fun showFinishConfirmationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Finish Timer")
+            .setMessage("Are you sure you want to finish the timer?")
+            .setPositiveButton("Yes") { dialogInterface: DialogInterface, _: Int ->
+                stopTimer()
+                startActivity(Intent(this, MainActivity::class.java))
+                dialogInterface.dismiss()
+            }
+            .setNegativeButton("No") { dialogInterface: DialogInterface, _: Int ->
+                dialogInterface.dismiss()
+            }
+            .create()
+            .show()
+    }
+
+    private fun showStopConfirmationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Stop Timer")
+            .setMessage("Are you sure you want to stop the timer?")
+            .setPositiveButton("Yes") { dialogInterface: DialogInterface, _: Int ->
+                stopTimer()
+                dialogInterface.dismiss()
+            }
+            .setNegativeButton("No") { dialogInterface: DialogInterface, _: Int ->
+                dialogInterface.dismiss()
+            }
+            .create()
+            .show()
+    }
+
+    private fun stopTimer() {
+        countDownTimer.cancel()
+        isTimerRunning = false
+        showResumeButton()
+        Toast.makeText(this, "Timer finished", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showResumeButton() {
+        if (isTimerRunning) return
+
+        binding.btnResume.apply {
+            visibility = View.VISIBLE
+            setOnClickListener {
+                resumeTimer()
+                visibility = View.GONE
+            }
+        }
+    }
+
+    private fun resumeTimer() {
+        setupCountDownTimer()
     }
 }

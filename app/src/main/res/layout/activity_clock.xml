@@ -5,14 +5,28 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:hapticFeedbackEnabled="false"
     tools:context=".ClockActivity">
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:text="Don't Look at me, FOCUS!"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/timerTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="120dp"
         android:layout_marginEnd="32dp"
         android:text="00:00"
         android:textColor="@android:color/black"
@@ -27,10 +41,10 @@
         style="@style/Widget.MaterialComponents.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="64dp"
         android:text="Stop"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/timerTextView"
         app:layout_constraintTop_toBottomOf="@+id/timerTextView" />
 
     <Button
@@ -40,8 +54,22 @@
         android:layout_height="wrap_content"
         android:text="Resume"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@id/btnStop"
+        app:layout_constraintEnd_toEndOf="@id/btnStop"
+        app:layout_constraintStart_toStartOf="@id/btnStop"
+        app:layout_constraintTop_toTopOf="@id/btnStop" />
+
+    <Button
+        android:id="@+id/btnFinish"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="64dp"
+        android:backgroundTint="@color/gray"
+        android:text="Finish"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/timerTextView"
+        app:layout_constraintTop_toBottomOf="@+id/timerTextView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

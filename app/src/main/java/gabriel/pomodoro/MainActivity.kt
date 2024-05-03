@@ -18,32 +18,30 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        sliderConfig()
+        setupSlider()
 
         binding.btnStart.setOnClickListener {
-            val selectedTime = slider.value.toInt() // Obtém o tempo selecionado
-            val intent = Intent(this@MainActivity, ClockActivity::class.java)
-            intent.putExtra("selected_time", selectedTime) // Passa o tempo selecionado como um extra
-            startActivity(intent) // Inicia a activity do cronômetro
+            val selectedTime = slider.value.toInt()
+            startTimer(selectedTime)
         }
     }
 
-    private fun sliderConfig() {
+    private fun setupSlider() {
         slider = binding.slider
 
         slider.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
-            override fun onStartTrackingTouch(slider: Slider) {
-                // Não é necessário implementar nada aqui
-            }
-
-            override fun onStopTrackingTouch(slider: Slider) {
-                // Não é necessário implementar nada aqui
-            }
+            override fun onStartTrackingTouch(slider: Slider) {}
+            override fun onStopTrackingTouch(slider: Slider) {}
         })
 
-        slider.addOnChangeListener { slider, value, fromUser ->
-            // Responde a mudanças no valor do slider
-            // Você pode atualizar dinamicamente a exibição do tempo selecionado aqui
+        slider.addOnChangeListener { _, _, _ ->
+            // Responds to changes in slider value
         }
+    }
+
+    private fun startTimer(selectedTime: Int) {
+        val intent = Intent(this@MainActivity, ClockActivity::class.java)
+        intent.putExtra("selected_time", selectedTime)
+        startActivity(intent)
     }
 }
