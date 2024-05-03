@@ -9,7 +9,6 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import gabriel.pomodoro.R
 import gabriel.pomodoro.databinding.ActivityClockBinding
 
 class ClockActivity : AppCompatActivity() {
@@ -48,6 +47,21 @@ class ClockActivity : AppCompatActivity() {
 
         binding.btnStop.setOnClickListener {
             showStopConfirmationDialog()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putLong("time_remaining", timeRemaining)
+        outState.putBoolean("is_timer_running", isTimerRunning)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        timeRemaining = savedInstanceState.getLong("time_remaining")
+        isTimerRunning = savedInstanceState.getBoolean("is_timer_running")
+        if (!isTimerRunning) {
+            showResumeButton()
         }
     }
 
@@ -97,6 +111,18 @@ class ClockActivity : AppCompatActivity() {
     }
 
     private fun resumeTimer() {
+        countDownTimer = object : CountDownTimer(timeRemaining, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                timeRemaining = millisUntilFinished
+                updateTimerUI()
+            }
+
+            override fun onFinish() {
+                // O cronômetro chegou ao fim
+                isTimerRunning = false
+                showResumeButton()
+            }
+        }
         countDownTimer.start()
         isTimerRunning = true
     }
